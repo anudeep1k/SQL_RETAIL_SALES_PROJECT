@@ -1,119 +1,168 @@
 # 🛍️ Retail Sales Analysis Using SQL
 
+> A complete SQL data analysis project on retail sales covering data cleaning, business questions, and SQL solutions in GitHub README format.
+
 ## 📖 About the Project
+
 This project is a hands-on SQL analysis of retail sales data designed to solve real business problems using structured queries.
 
 The main goal of this project was to practice how SQL is used in a real Data Analyst role—from cleaning raw transactional data to answering business questions that help understand sales trends, customer behavior, and product performance.
 
-I used SQL to explore the dataset, clean missing values, and answer 10 business-driven questions related to customer purchases, category performance, best-selling periods, and order shifts.
-
-This project helped me strengthen my understanding of SQL while thinking from a business and reporting perspective.
+I used SQL to explore the dataset, clean missing values, and solve 10 business-driven SQL problems.
 
 ---
 
 ## 📂 Dataset Details
+
 The dataset contains transaction-level retail sales records with the following fields:
 
-- Transaction ID
-- Sale Date
-- Sale Time
-- Customer ID
-- Gender
-- Age
-- Category
-- Quantity
-- Price Per Unit
-- COGS
-- Total Sale
+* transactions_id
+* sale_date
+* sale_time
+* customer_id
+* gender
+* age
+* category
+* quantiy
+* price_per_unit
+* cogs
+* total_sale
 
 ---
 
-## 🔍 What I Worked On
+## 🛠️ SQL Questions and Solutions
 
-### ✅ 1) Data Cleaning
-The first step was checking for null values in important columns such as:
-- transaction id
-- sale date
-- sale time
-- customer id
-- category
-- quantity
-- total sale
+### ✅ Q1: Sales made on 2022-11-05
 
-After identifying incomplete rows, I removed them to make the analysis reliable.
+```sql
+SELECT *
+FROM retail_sales
+WHERE sale_date = '2022-11-05';
+```
 
----
+### ✅ Q2: Clothing transactions with quantity > 10 in Nov 2022
 
-### ✅ 2) Data Exploration
-Before solving business questions, I explored the dataset by finding:
-- total sales generated
-- total unique customers
-- overall category distribution
+```sql
+SELECT *
+FROM retail_sales
+WHERE category = 'Clothing'
+  AND quantiy > 10
+  AND MONTH(sale_date) = 11
+  AND YEAR(sale_date) = 2022;
+```
 
-This helped me understand the data better before deeper analysis.
+### ✅ Q3: Total sales by category
 
----
+```sql
+SELECT category, SUM(total_sale) AS total_sales
+FROM retail_sales
+GROUP BY category;
+```
 
-## 📊 Business Questions Solved
-Some of the key SQL questions solved in this project include:
+### ✅ Q4: Average age of customers in Beauty category
 
-- Finding sales made on a specific date
-- Retrieving clothing sales in November 2022
-- Calculating total sales by category
-- Finding average customer age for Beauty purchases
-- Identifying high-value transactions above 1000
-- Counting transactions by gender and category
-- Finding the best-selling month in each year
-- Identifying top 5 customers by sales
-- Counting unique customers by category
-- Creating shift-based order analysis (Morning / Afternoon / Evening)
+```sql
+SELECT AVG(age) AS avg_age
+FROM retail_sales
+WHERE category = 'Beauty';
+```
 
----
+### ✅ Q5: Transactions where total sale > 1000
 
-## 🛠️ SQL Skills Used
-This project helped me practice:
+```sql
+SELECT *
+FROM retail_sales
+WHERE total_sale > 1000;
+```
 
-- SELECT statements
-- Filtering with WHERE
-- GROUP BY
-- ORDER BY
-- Aggregate functions
-- COUNT, SUM, AVG
-- DISTINCT
-- CASE WHEN
-- Common Table Expressions (CTE)
-- Window Functions
-- RANK()
-- Date Functions
-- Time Functions
+### ✅ Q6: Number of transactions by gender in each category
+
+```sql
+SELECT gender, category, COUNT(*) AS total_transactions
+FROM retail_sales
+GROUP BY gender, category
+ORDER BY gender;
+```
+
+### ✅ Q7: Average sale for each month and best-selling month in each year
+
+```sql
+WITH monthly_sales AS (
+    SELECT
+        YEAR(sale_date) AS year,
+        MONTH(sale_date) AS month,
+        AVG(total_sale) AS avg_sale,
+        SUM(total_sale) AS total_sales
+    FROM retail_sales
+    GROUP BY YEAR(sale_date), MONTH(sale_date)
+),
+ranked_months AS (
+    SELECT *,
+           RANK() OVER (
+               PARTITION BY year
+               ORDER BY total_sales DESC
+           ) AS rank_num
+    FROM monthly_sales
+)
+SELECT year, month, avg_sale, total_sales
+FROM ranked_months
+WHERE rank_num = 1;
+```
+
+### ✅ Q8: Top 5 customers by highest total sales
+
+```sql
+SELECT customer_id, SUM(total_sale) AS total_sales
+FROM retail_sales
+GROUP BY customer_id
+ORDER BY total_sales DESC
+LIMIT 5;
+```
+
+### ✅ Q9: Unique customers by category
+
+```sql
+SELECT category, COUNT(DISTINCT customer_id) AS unique_customers
+FROM retail_sales
+GROUP BY category;
+```
+
+### ✅ Q10: Shift-wise number of orders
+
+```sql
+SELECT
+    CASE
+        WHEN HOUR(sale_time) < 12 THEN 'Morning'
+        WHEN HOUR(sale_time) BETWEEN 12 AND 17 THEN 'Afternoon'
+        ELSE 'Evening'
+    END AS shift,
+    COUNT(*) AS number_of_orders
+FROM retail_sales
+GROUP BY shift;
+```
 
 ---
 
 ## 📈 Key Insights
-Through this project, I was able to identify:
 
-- top-performing product categories
-- high-value customers
-- monthly sales trends
-- best-selling month in each year
-- busiest order shift timings
-- customer buying behavior patterns
-
----
-
-## 🚀 Why I Built This
-I created this project to improve my SQL problem-solving skills and build confidence in handling business use cases similar to what Data Analysts solve in real companies.
-
-Instead of only writing basic queries, I focused on solving practical reporting questions that reflect real-world retail analytics.
+* Identified top-performing product categories
+* Found highest-value customers
+* Measured monthly sales trends
+* Found best-selling month in each year
+* Analyzed peak shift timings
+* Understood customer purchase behavior
 
 ---
 
 ## 💼 Tools Used
-- MySQL
-- SQL Workbench
+
+* MySQL
+* SQL Workbench
+* GitHub
 
 ---
 
 ## 👤 Author
-**ANUDEEP KOLLA**  
-Aspiring Data Analyst passionate about SQL, Python, Power BI, and business analytics.
+
+**ANUDEEP KOLLA**
+Aspiring Data Analyst | SQL | Python | Power BI | AWS
